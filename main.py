@@ -1,27 +1,23 @@
-from flask import Flask, render_template, request
 import smtplib
 
-app = Flask(__name__)
+my_email = "test@gmail.com"
+app_password = "password"  # Replace with your App Password
 
-@app.route('/', methods=['GET', 'POST'])
-def send_email():
-    if request.method == 'POST':
-        my_email = request.form['email']
-        password = request.form['password']
-        recipient_email = request.form['recipient_email']
-        message = request.form['message']
+recipient_email = "recipient@gmail.com"
+message = "Hello, World!"
 
-        try:
-            connection = smtplib.SMTP("smtp.gmail.com", 587)
-            connection.starttls()
-            connection.login(user=my_email, password=password)
-            connection.sendmail(from_addr=my_email, to_addrs=recipient_email, msg=f"Subject: Hello\n\n{message}")
-            connection.quit()
+# Establish a connection to the SMTP server
+with smtplib.SMTP("smtp.gmail.com", 587) as connection:
+    connection.starttls()
 
-            return 'Email sent successfully!'
-        except smtplib.SMTPException as e:
-            return f'Error: {str(e)}'
-    return render_template('index.html')
-
-if __name__ == '__main__':
-    app.run()
+    try:
+        connection.login(user=my_email, password=app_password)
+        print("Login successful!")
+        
+        # Send the email
+        connection.sendmail(from_addr=my_email, to_addrs=recipient_email, msg=message)
+        print("Email sent successfully!")
+        
+    except smtplib.SMTPAuthenticationError:
+        print("Login failed. Please check your credentials.")
+    
